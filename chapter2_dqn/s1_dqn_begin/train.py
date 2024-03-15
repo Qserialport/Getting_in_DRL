@@ -1,4 +1,4 @@
-from chapter2.s1_dqn_begin import agents,modules
+from chapter2_dqn.s1_dqn_begin import agents,modules
 import gym
 import torch
 

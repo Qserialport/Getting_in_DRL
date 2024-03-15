@@ -14,20 +14,20 @@ class SarsaAgent():
         self.lr = lr
         self.gamma = gamma
 
-    def predict(self,state):  #利用之前Q表格内的信息，传进来当的状态
+    def predict(self,state):  #利用之前Q表格内的信息，传进来当的状态，输出要采取的动作
         Q_list = self.Q[state,:]    #做切片，取出state对应的那一排
         #action = np.argmax(Q_list)   #取出最大值，但仅会采取第一个最大值对应的下标，比如[1,1,1,1]，返回0
         action = np.random.choice(np.flatnonzero(Q_list==Q_list.max())) #这样即可随机选取所有的最大值对应的下标
         return action
-    def act(self,state):    #state代表当前环境的状态
-        if np.random.uniform(0,1)<self.e_greed: #完全随机地探索
+    def act(self,state):    #state代表当前环境的状态，仅根据当前状态随机返回要选取的动作，并未更新Q表格
+        if np.random.uniform(0,1)<self.e_greed: #完全随机地探索，前面的函数表示从(0,1)内均匀采样
             action = np.random.choice(self.n_act)
         else:   #利用Q表格中已存在的信息
             action = self.predict(state)
         return action   #返回要取用的action
 
 
-    def learn(self,state,action,reward,next_state,next_action,done):    #反向传播,更准确地说就是td算法
+    def learn(self,state,action,reward,next_state,next_action,done):    #反向传播,更准确地说就是td算法，更新了Q表格
         cur_Q = self.Q[state,action]
         if done:
             target_Q = reward
