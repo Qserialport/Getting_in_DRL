@@ -15,7 +15,7 @@ EPSILON_START = 1.0
 EPSILON_END = 0.02         #贪心算法参数会逐渐减小
 
 n_episode = 5000   #一共玩5000局
-n_time_step = 1000  #每一局有1000步
+n_time_step = 500  #每一局有1000步
 
 n_state = len(s)
 n_action = env.action_space.n
@@ -44,6 +44,15 @@ for episode_i in range(n_episode):
             REWARD_BUFFER[episode_i] = episode_reward
             break
 
+        if np.mean(REWARD_BUFFER[:episode_i]) >= 200:
+            while True:
+                a = agent.online_net.act(s)
+                s, r, done, info = env.step(a)
+                env.render()
+
+                if done:
+                    env.reset()
+
         batch_s, batch_a, batch_r, batch_done, batch_s_ = agent.memo.sample()   #TODO   #每个batch由四元组组成（s,r,a,s_）
 
         # Compute target using td_AL
@@ -56,7 +65,7 @@ for episode_i in range(n_episode):
         a_q_values = torch.gather(input=q_values, dim=1, index=batch_a) #找出每个状态，对应的所有Q值里面最大的，并输出
 
         # Compute loss
-        loss = nn.functional.smooth_l1_loss(targets, a_q_values)
+        loss = nn.functional.smooth_l1_loss(a_q_values, targets)
 
         # Gradient descent
         agent.optimizer.zero_grad()   #TODO 要输入状态

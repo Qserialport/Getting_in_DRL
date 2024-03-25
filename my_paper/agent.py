@@ -29,7 +29,7 @@ class Replaymemory:
 
     def sample(self):   #每次随机取64个，够就取，不够就有几个取几个
 
-        if self.t_max > self.BATCH_SIZE:
+        if self.t_max >= self.BATCH_SIZE:
             idxes = random.sample(range(0, self.t_max), self.BATCH_SIZE)   #从已有的数据中随机取BATCH_SIZE个
         else:
             idxes = range(0, self.t_max)
@@ -47,11 +47,11 @@ class Replaymemory:
             batch_done.append(self.all_done[idx])
             batch_s_.append(self.all_s_[idx])
 
-        batch_s_tensor = torch.tensor(np.asarray(batch_s), dtype=torch.float32) #torch识别不了numpy要转换为tensor
-        batch_a_tensor = torch.tensor(np.asarray(batch_a), dtype=torch.int64).unsqueeze(-1)
-        batch_r_tensor = torch.tensor(np.asarray(batch_r), dtype=torch.float32).unsqueeze(-1)
-        batch_done_tensor = torch.tensor(np.asarray(batch_done), dtype=torch.float32).unsqueeze(-1)
-        batch_s__tensor = torch.tensor(np.asarray(batch_s_), dtype=torch.float32)
+        batch_s_tensor = torch.as_tensor(np.asarray(batch_s), dtype=torch.float32) #torch识别不了numpy要转换为tensor
+        batch_a_tensor = torch.as_tensor(np.asarray(batch_a), dtype=torch.int64).unsqueeze(-1)
+        batch_r_tensor = torch.as_tensor(np.asarray(batch_r), dtype=torch.float32).unsqueeze(-1)
+        batch_done_tensor = torch.as_tensor(np.asarray(batch_done), dtype=torch.float32).unsqueeze(-1)
+        batch_s__tensor = torch.as_tensor(np.asarray(batch_s_), dtype=torch.float32)
 
         return batch_s_tensor, batch_a_tensor, batch_r_tensor, batch_done_tensor, batch_s__tensor
 
@@ -70,7 +70,7 @@ class DQN(nn.Module):
     def act(self, obs):
         obs_tensor = torch.as_tensor(obs, dtype=torch.float32)
         q_value = self(obs_tensor.unsqueeze(0))
-        max_q_idx = torch.max(input=q_value)
+        max_q_idx = torch.argmax(input=q_value)
         action = max_q_idx.detach().item()
 
         return action
